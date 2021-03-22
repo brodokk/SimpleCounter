@@ -1,11 +1,11 @@
-#!/bin/python
+#!/bin/python3.7
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from pathlib import Path
 import os
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "change-me"
+app.config["SECRET_KEY"] = "eskdskkfdskfoo88493490iokol"
 
 
 def check_secret():
@@ -17,8 +17,6 @@ def check_secret():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if not check_secret():
-        return {"message": "Invalid token"}, 401
     datas = {}
     _folder = Path('datas')
     _folder.mkdir(parents=True, exist_ok=True)
@@ -26,11 +24,11 @@ def index():
     for filename in filenames:
         try:
             with open(_folder / filename, "r") as f:
-                datas[filename] = int(f.read())
+                datas[filename] = float(f.read())
         except FileNotFoundError:
             pass
 
-    return datas
+    return render_template('index.html', datas=datas)
 
 
 @app.route('/<variable>/<inc>')
@@ -43,10 +41,10 @@ def patch(variable, inc):
     _file = _folder / Path(variable)
     try:
         with open(_file, "r") as f:
-            count = int(f.read())
+            count = float(f.read())
     except FileNotFoundError:
         pass
-    count += int(inc)
+    count += float(inc)
     with open(_file, "w") as f:
         f.write(str(count))
 
@@ -55,15 +53,13 @@ def patch(variable, inc):
 
 @app.route('/<variable>')
 def get(variable):
-    if not check_secret():
-        return {"message": "Invalid token"}, 401
     count = 0
     _folder = Path('datas')
     _folder.mkdir(parents=True, exist_ok=True)
     _file = _folder / Path(variable)
     try:
         with open(_file, "r") as f:
-            count = int(f.read())
+            count = float(f.read())
     except FileNotFoundError:
         pass
 
